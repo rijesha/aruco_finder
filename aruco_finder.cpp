@@ -1,9 +1,10 @@
 #include <opencv2/opencv.hpp>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream> 
-#include "aruco/include/aruco/aruco.h"
+#include <aruco/aruco.h>
 #include <map>
 #include <vector>
 #include "argparse.hpp"
@@ -39,7 +40,7 @@ int main(int argc, const char** argv) {
         str_check_2.append(".");
     }
 
-    ofstream resultsFile = ofstream(results_file_name, ofstream::out);;
+    ofstream resultsFile(results_file_name, ofstream::out);
 
     path p(parser.retrieve<string>("input_directory"));
 
