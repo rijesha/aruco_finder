@@ -6,6 +6,7 @@
 #include "aruco/include/aruco/aruco.h"
 #include <map>
 #include <vector>
+#include "argparse.hpp"
 
 using namespace boost::filesystem;
 using namespace cv;
@@ -13,16 +14,34 @@ using namespace std;
 
 string str_check_1 = ".png";
 string str_check_2 = "cam_1.";
-ofstream resultsFile = ofstream("marker_results.txt", ofstream::out);;
 
+int main(int argc, const char** argv) {
+    ArgumentParser parser;
 
-int main(int argc, char *argv[]) {
-    if (argc == 2) {
-        cout << "passed in directory: " << argv[1] << std::endl;
-    } else {
-        cout << "passed directory as argument" << endl;
-        return 0;
+    // add some arguments to search for
+    parser.addArgument("-o", "--output_file",1);
+    parser.addArgument("-c", "--cam_num",1);
+    parser.addFinalArgument("input_directory");
+
+    // parse the command-line arguments - throws if invalid format
+    parser.parse(argc, argv);
+
+    // if we get here, the configuration is valid
+    string results_file_name = "marker_results.txt";
+    string test_string = parser.retrieve<string>("o");
+    if (test_string.length() != 0)
+        results_file_name = test_string;
+
+    test_string = parser.retrieve<string>("c");
+    if (test_string.length() != 0){
+        str_check_2 = "cam_";
+        str_check_2.append(test_string);
+        str_check_2.append(".");
     }
+
+    ofstream resultsFile = ofstream(results_file_name, ofstream::out);;
+
+    path p(parser.retrieve<string>("input_directory"));
 
     map<int, vector<int>> by_frame;
     map<int, vector<int>> by_marker;
@@ -31,7 +50,7 @@ int main(int argc, char *argv[]) {
     MDetector.setDictionary("ARUCO_MIP_16h3");
 
     cout << "Iterating" << endl;
-    path p(argv[1]);
+    
     directory_iterator end_itr;
 
     for (directory_iterator itr(p); itr != end_itr; ++itr)
@@ -101,7 +120,7 @@ int main(int argc, char *argv[]) {
         for (auto frame : marker.second){
             ss << frame << ", ";           
         }
-            
+
         ss << endl ;
     } 
 
